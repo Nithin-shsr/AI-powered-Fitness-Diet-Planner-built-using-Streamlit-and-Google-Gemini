@@ -43,11 +43,6 @@ FEATURES = [
         "title": "AI Coach",
         "desc": "Chat with your personal AI fitness coach for real-time motivation, tips, and answers.",
     },
-    {
-        "icon": "📈",
-        "title": "Progress Tracker",
-        "desc": "Log weight, measurements, and workout data to visualise your transformation over time.",
-    },
 ]
 
 

@@ -396,23 +396,4 @@ def render() -> None:
             """
         )
 
-    # ── Coming soon teaser ─────────────────────────────────────────────────
-    st.markdown(
-        """
-        <div style="
-            background:rgba(255,255,255,0.02);
-            border:1px dashed rgba(108,99,255,0.2);
-            border-radius:16px;
-            padding:1.4rem;
-            text-align:center;
-            margin-top:0.5rem;
-        ">
-            <div style="font-size:1.5rem;margin-bottom:0.4rem;">🚧</div>
-            <div style="font-weight:600;color:#e2e8f0;margin-bottom:0.3rem;">More features coming soon</div>
-            <div style="color:#94a3b8;font-size:0.88rem;">
-                AI Diet Planner · Workout Planner · AI Coach · Progress Tracker
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+

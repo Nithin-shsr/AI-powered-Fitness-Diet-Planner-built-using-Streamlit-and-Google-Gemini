@@ -27,6 +27,8 @@ import pages.home         as home_page
 import pages.profile      as profile_page
 import pages.dashboard    as dashboard_page
 import pages.diet_planner as diet_planner_page
+import pages.workout_planner as workout_planner_page
+import pages.ai_coach     as ai_coach_page
 
 
 # ---------------------------------------------------------------------------
@@ -34,18 +36,13 @@ import pages.diet_planner as diet_planner_page
 # ---------------------------------------------------------------------------
 
 NAV_ITEMS = {
-    "🏠  Home":          "Home",
-    "👤  Profile":       "Profile",
-    "📊  Dashboard":     "Dashboard",
-    "🥗  Diet Planner":  "Diet Planner",
+    "🏠  Home":              "Home",
+    "👤  Profile":           "Profile",
+    "📊  Dashboard":         "Dashboard",
+    "🥗  Diet Planner":      "Diet Planner",
+    "💪  Workout Planner":   "Workout Planner",
+    "🤖  AI Coach":          "AI Coach",
 }
-
-# Coming-soon pages (shown greyed out in sidebar)
-COMING_SOON = [
-    "💪  Workout Planner",
-    "💬  AI Coach",
-    "📈  Progress Tracker",
-]
 
 
 # ---------------------------------------------------------------------------
@@ -115,44 +112,6 @@ def render_sidebar() -> None:
         )
         st.session_state.current_page = NAV_ITEMS[selected_label]
 
-        st.markdown(
-            "<hr style='border:none;border-top:1px solid var(--divider-line);margin:1rem 0 0.8rem;'/>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<p style='font-size:0.7rem;font-weight:700;text-transform:uppercase;"
-            "letter-spacing:0.1em;color:var(--text-muted);padding:0 0.3rem;margin-bottom:0.5rem;'>"
-            "Coming Soon</p>",
-            unsafe_allow_html=True,
-        )
-        for item in COMING_SOON:
-            st.markdown(
-                f"""
-                <div style="
-                    padding:0.6rem 1rem;
-                    border-radius:10px;
-                    color:var(--coming-soon-color);
-                    font-size:0.9rem;
-                    margin-bottom:0.25rem;
-                    cursor:not-allowed;
-                    display:flex;
-                    align-items:center;
-                    gap:0.5rem;
-                ">{item}
-                    <span style="
-                        font-size:0.6rem;
-                        background:var(--soon-badge-bg);
-                        color:var(--soon-badge-color);
-                        padding:0.15rem 0.5rem;
-                        border-radius:50px;
-                        border:1px solid var(--soon-badge-border);
-                        margin-left:auto;
-                    ">Soon</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
         # Profile status
         st.markdown(
             "<hr style='border:none;border-top:1px solid var(--divider-line);margin:1rem 0 0.8rem;'/>",
@@ -221,7 +180,7 @@ def render_sidebar() -> None:
         # Version footer
         st.markdown(
             "<div style='text-align:center;font-size:0.7rem;color:var(--footer-color);margin-top:1.5rem;'>"
-            "v2.0 · Phase 2</div>",
+            "v3.0 · Phase 3</div>",
             unsafe_allow_html=True,
         )
 
@@ -251,6 +210,10 @@ def main() -> None:
         dashboard_page.render()
     elif page == "Diet Planner":
         diet_planner_page.render()
+    elif page == "Workout Planner":
+        workout_planner_page.render()
+    elif page == "AI Coach":
+        ai_coach_page.render()
     else:
         home_page.render()
 
