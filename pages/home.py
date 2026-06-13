@@ -50,12 +50,13 @@ FEATURES = [
 # Page renderer
 # ---------------------------------------------------------------------------
 
+
 def render() -> None:
     """Render the Home page."""
     init_session_state()
 
     # ── Hero ───────────────────────────────────────────────────────────────
-    st.markdown(
+    st.html(
         """
         <div style="text-align:center; padding: 3rem 1rem 1.5rem;">
             <div style="
@@ -98,10 +99,9 @@ def render() -> None:
             </p>
         </div>
         """,
-        unsafe_allow_html=True,
     )
 
-    # ── Stats strip ────────────────────────────────────────────────────────
+    # ── Stats strip ────────────────────────────────────   ────────────────────
     c1, c2, c3, c4 = st.columns(4)
     stats = [
         ("🔥", "Calories", "Tracked"),

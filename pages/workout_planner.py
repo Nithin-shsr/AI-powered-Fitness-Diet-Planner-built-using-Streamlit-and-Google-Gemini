@@ -426,7 +426,7 @@ def _render_input_form(profile: dict) -> dict | None:
     """
     defaults = _get_profile_defaults(profile)
 
-    st.markdown('<div class="wo-form-section">', unsafe_allow_html=True)
+    st.html('<div class="wo-form-section">')
     section_header("⚙️ Workout Preferences")
 
     col1, col2, col3 = st.columns(3)
@@ -501,7 +501,7 @@ def _render_input_form(profile: dict) -> dict | None:
         help="Describe any injuries or physical limitations.",
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.html('</div>')
 
     col_l, col_btn, col_r = st.columns([1, 2, 1])
     with col_btn:
@@ -539,10 +539,8 @@ def _render_plan(plan: dict, workout_inputs: dict) -> None:
     # ── Plan summary banner ────────────────────────────────────────────────
     summary_text = plan.get("plan_summary", "")
     if summary_text:
-        st.markdown(
-            f'<div class="wo-plan-summary-banner">📋 <strong>Plan Overview:</strong> {summary_text}</div>',
-            unsafe_allow_html=True,
-        )
+        st.html(
+            f'<div class="wo-plan-summary-banner">📋 <strong>Plan Overview:</strong> {summary_text}</div>')
 
     # ── Quick stats cards ──────────────────────────────────────────────────
     section_header("📊 Workout Overview")
@@ -584,9 +582,8 @@ def _render_plan(plan: dict, workout_inputs: dict) -> None:
         day_key = f"day_{i}"
         day_data = schedule.get(day_key, {})
         _, accent = DAY_ICONS.get(day_key, ("📅", "#6c63ff"))
-        st.markdown(
-            _day_card_html(day_key, day_data, accent),
-            unsafe_allow_html=True,
+        st.html(
+            _day_card_html(day_key, day_data, accent)
         )
 
     styled_divider()
@@ -625,7 +622,7 @@ def _render_plan(plan: dict, workout_inputs: dict) -> None:
             st.rerun()
 
     # ── Disclaimer ─────────────────────────────────────────────────────────
-    st.markdown(
+    st.html(
         """
         <div style="
             text-align:center;
@@ -640,7 +637,6 @@ def _render_plan(plan: dict, workout_inputs: dict) -> None:
             any new exercise programme, especially if you have pre-existing conditions.
         </div>
         """,
-        unsafe_allow_html=True,
     )
 
 
@@ -656,7 +652,7 @@ def render() -> None:
     st.markdown(WORKOUT_PAGE_CSS, unsafe_allow_html=True)
 
     # ── Page header ─────────────────────────────────────────────────────────
-    st.markdown(
+    st.html(
         """
         <div style="padding: 1.5rem 0 0.5rem;">
             <h1 style="
@@ -674,13 +670,12 @@ def render() -> None:
             </p>
         </div>
         """,
-        unsafe_allow_html=True,
     )
     styled_divider()
 
     # ── Guard: profile required ─────────────────────────────────────────────
     if not is_profile_complete():
-        st.markdown(
+        st.html(
             """
             <div class="wo-guard-box">
                 <div class="wo-guard-icon">🔒</div>
@@ -691,7 +686,6 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
         )
         col_l, col_btn, col_r = st.columns([2, 1, 2])
         with col_btn:
@@ -703,7 +697,7 @@ def render() -> None:
     profile = get_profile()
 
     # ── Profile preview strip ───────────────────────────────────────────────
-    st.markdown(
+    st.html(
         f"""
         <div style="
             background: linear-gradient(135deg,rgba(108,99,255,0.08),rgba(0,212,255,0.04));
@@ -730,7 +724,6 @@ def render() -> None:
             </div>
         </div>
         """,
-        unsafe_allow_html=True,
     )
 
     # ── Check if a plan is already stored in session state ──────────────────
@@ -739,11 +732,10 @@ def render() -> None:
         stored_inputs = st.session_state["workout_plan_inputs"]
 
         st.success("✅ Your workout plan is ready! Scroll down to explore it.", icon="💪")
-        st.markdown(
+        st.html(
             "<p style='color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.8rem;'>"
             "This plan is stored for this session. Click <strong>Regenerate</strong> for a fresh plan "
-            "or adjust your preferences below and generate again.</p>",
-            unsafe_allow_html=True,
+            "or adjust your preferences below and generate again.</p>"
         )
 
         # Show form again (collapsed via expander) for quick re-generation
@@ -776,7 +768,7 @@ def render() -> None:
 
     if workout_inputs is None:
         # Not yet submitted — show a teaser
-        st.markdown(
+        st.html(
             """
             <div style="
                 text-align:center;
@@ -797,8 +789,7 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
-        )
+            )
         return
 
     # ── Generate plan ───────────────────────────────────────────────────────
@@ -841,7 +832,7 @@ def render() -> None:
         gen_placeholder.empty()
         shimmer_ph.empty()
         st.error("⚠️ Workout Plan Generation Failed")
-        st.markdown(
+        st.html(
             f"""
             <div style="
                 background:rgba(248,113,113,0.06);
@@ -861,7 +852,6 @@ def render() -> None:
                 • Wait a moment and try generating again
             </div>
             """,
-            unsafe_allow_html=True,
         )
         col_l2, col_retry, col_r2 = st.columns([2, 1, 2])
         with col_retry:

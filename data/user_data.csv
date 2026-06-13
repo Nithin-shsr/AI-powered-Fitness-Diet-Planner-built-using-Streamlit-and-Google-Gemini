@@ -1,4 +1,4 @@
 name,age,gender,height_cm,weight_kg,target_weight_kg,activity_level,fitness_goal,diet_preference,preferred_cuisine,workout_time,available_equipment
 m,25,Male,170.0,70.0,65.0,Moderately Active,Weight Loss,No Restriction,Any,Morning,[]
 John Doe,25,Male,180.0,80.0,75.0,Moderately Active,Weight Loss,No Restriction,Any,Morning,[]
-ram,25,Male,170.0,70.0,65.0,Moderately Active,Weight Loss,No Restriction,Any,Morning,[]
+Ram,25,Male,170.0,70.0,65.0,Moderately Active,Weight Loss,No Restriction,Any,Morning,[]
