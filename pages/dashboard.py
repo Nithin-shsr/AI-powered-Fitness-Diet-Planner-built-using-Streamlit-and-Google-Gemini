@@ -98,7 +98,7 @@ def render() -> None:
     init_session_state()
 
     # ── Page header ────────────────────────────────────────────────────────
-    st.markdown(
+    st.html(
         """
         <div style="padding: 1.5rem 0 0.5rem;">
             <h1 style="
@@ -116,13 +116,12 @@ def render() -> None:
             </p>
         </div>
         """,
-        unsafe_allow_html=True,
     )
     styled_divider()
 
     # ── Guard: require profile ─────────────────────────────────────────────
     if not is_profile_complete():
-        st.markdown(
+        st.html(
             """
             <div style="
                 text-align:center;
@@ -139,7 +138,6 @@ def render() -> None:
                 </p>
             </div>
             """,
-            unsafe_allow_html=True,
         )
         col_l, col_btn, col_r = st.columns([2, 1, 2])
         with col_btn:
@@ -168,7 +166,7 @@ def render() -> None:
     weeks        = estimate_goal_weeks(weight, target, goal)
 
     # ── Welcome banner ─────────────────────────────────────────────────────
-    st.markdown(
+    st.html(
         f"""
         <div style="
             background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(0,212,255,0.06));
@@ -193,7 +191,6 @@ def render() -> None:
             </div>
         </div>
         """,
-        unsafe_allow_html=True,
     )
 
     # ── Main metric cards row ──────────────────────────────────────────────
@@ -208,27 +205,23 @@ def render() -> None:
         )
 
     with m2:
-        st.markdown(
+        st.html(
             metric_card_html("🔥", "BMR", f"{int(bmr):,}", "kcal / day"),
-            unsafe_allow_html=True,
         )
 
     with m3:
-        st.markdown(
+        st.html(
             metric_card_html("🍽️", "Daily Calories", f"{daily_cals:,}", "kcal target"),
-            unsafe_allow_html=True,
         )
 
     with m4:
-        st.markdown(
+        st.html(
             metric_card_html("💪", "Protein", f"{protein_min}–{protein_max}", "g / day"),
-            unsafe_allow_html=True,
         )
 
     with m5:
-        st.markdown(
+        st.html(
             metric_card_html("💧", "Water", str(water_litres), "litres / day"),
-            unsafe_allow_html=True,
         )
 
     styled_divider()
@@ -247,7 +240,7 @@ def render() -> None:
             else "danger"
         )
 
-        st.markdown(
+        st.html(
             f"""
             <div style="
                 background:rgba(255,255,255,0.03);
@@ -269,7 +262,6 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
         )
 
     # RIGHT — Calorie & macro breakdown
@@ -292,7 +284,7 @@ def render() -> None:
         carb_g       = carb_cals // 4
         fat_g        = fat_cals // 9
 
-        st.markdown(
+        st.html(
             f"""
             <div style="
                 background:rgba(255,255,255,0.03);
@@ -318,7 +310,6 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
         )
 
     styled_divider()
@@ -330,7 +321,7 @@ def render() -> None:
         section_header("💧 Daily Hydration Goal")
         glasses = round(water_litres / 0.25)  # 1 glass ≈ 250 ml
 
-        st.markdown(
+        st.html(
             f"""
             <div style="
                 background:rgba(0,212,255,0.06);
@@ -350,12 +341,11 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
         )
 
     with col_b:
         section_header("🔥 Basal Metabolic Rate")
-        st.markdown(
+        st.html(
             f"""
             <div style="
                 background:rgba(108,99,255,0.06);
@@ -374,8 +364,7 @@ def render() -> None:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
-        )
+            )
 
     styled_divider()
 

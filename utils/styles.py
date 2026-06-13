@@ -143,7 +143,7 @@ LIGHT_VARS = """:root {
   /* Text */
   --text-primary:   #0f172a;
   --text-secondary: #475569;
-  --text-muted:     #94a3b8;
+  --text-muted: #64748b;
 
   /* Borders & surfaces */
   --border:       rgba(59, 130, 246, 0.25);
@@ -169,8 +169,8 @@ LIGHT_VARS = """:root {
   --shadow-hover: rgba(59, 130, 246, 0.35);
 
   /* Misc elements */
-  --coming-soon-color:  #94a3b8;
-  --footer-color:       #94a3b8;
+  --coming-soon-color: #64748b;
+  --footer-color: #64748b;
   --section-border:     rgba(59, 130, 246, 0.25);
   --divider-gradient:   rgba(59, 130, 246, 0.35);
 
