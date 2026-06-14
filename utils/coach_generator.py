@@ -104,17 +104,25 @@ def get_ai_coach_response(
 
     # 5. Call Gemini
     try:
+        logger.info("AI Coach request sent. Query: %s", user_query[:50])
         response = model.generate_content(
             prompt.strip(),
             generation_config=generation_config,
         )
+        raw_text = response.text.strip()
+        
+        # Safety Filter
+        _validate_response_text(raw_text)
+        
+        # 6. Return plain text only
+        return raw_text
     except Exception as exc:
-        raise RuntimeError(f"Gemini API error: {exc}") from exc
-
-    raw_text = response.text.strip()
-    
-    # Safety Filter
-    _validate_response_text(raw_text)
-    
-    # 6. Return plain text only
-    return raw_text
+        err_str = str(exc).lower()
+        logger.error("AI Coach API failure: %s", exc)
+        
+        if "429" in err_str or "quota" in err_str:
+            return "I'm currently experiencing high demand and rate limits. Please try asking again in a minute!"
+        elif "empty response" in err_str or "html detected" in err_str:
+            return "I couldn't generate a proper response to that. Could you try rephrasing your question?"
+        else:
+            return "I'm having trouble connecting to my servers right now. Please try again later."

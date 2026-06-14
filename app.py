@@ -46,143 +46,96 @@ NAV_ITEMS = {
 
 
 # ---------------------------------------------------------------------------
-# Sidebar
+# Global UI Injection (Theme Toggle & Back to Home)
 # ---------------------------------------------------------------------------
 
-def render_sidebar() -> None:
-    """Build the sidebar navigation."""
-    with st.sidebar:
+def handle_theme_toggle():
+    """Callback for the real Streamlit theme button."""
+    current = get_theme()
+    set_theme("Light" if current == "Dark" else "Dark")
 
-        # Logo / brand
-        st.markdown(
-            """
-            <div style="text-align:center;padding:1.5rem 0 1rem;">
-                <div style="
-                    width:60px;height:60px;
-                    background:var(--gradient);
-                    border-radius:16px;
-                    display:flex;align-items:center;justify-content:center;
-                    font-size:1.8rem;
-                    margin:0 auto 0.8rem;
-                    box-shadow:0 8px 20px var(--shadow);
-                ">💪</div>
-                <div style="
-                    font-family:'Outfit',sans-serif;
-                    font-size:1.1rem;
-                    font-weight:800;
-                    background:var(--gradient);
-                    -webkit-background-clip:text;
-                    -webkit-text-fill-color:transparent;
-                    background-clip:text;
-                ">AI Fitness Planner</div>
-                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">
-                    Powered by Google Gemini
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+def handle_home_toggle():
+    """Callback for the real Streamlit home button."""
+    st.session_state.current_page = "Home"
 
-        st.markdown("<hr style='border:none;border-top:1px solid var(--divider-line);margin:0 0 1rem;'/>", unsafe_allow_html=True)
+def inject_global_ui() -> None:
+    """Inject the true Streamlit widgets and convert them into floating UI via JS."""
+    current_theme = get_theme()
+    theme_icon = "☀️" if current_theme == "Dark" else "🌙"
+    
+    # 1. Render the TRUE visible widgets. No hidden divs.
+    st.button(theme_icon, key="global_theme_btn", on_click=handle_theme_toggle)
+    
+    if st.session_state.current_page != "Home":
+        st.button("🏠 Home", key="global_home_btn", on_click=handle_home_toggle)
 
-        # Active navigation
-        st.markdown(
-            "<p style='font-size:0.7rem;font-weight:700;text-transform:uppercase;"
-            "letter-spacing:0.1em;color:var(--text-muted);padding:0 0.3rem;margin-bottom:0.5rem;'>"
-            "Navigation</p>",
-            unsafe_allow_html=True,
-        )
+    # 2. Inject JS to style them and attach View Transition
+    st.html("""
+        <script>
+            // This script finds the real Streamlit buttons and adds classes to their containers
+            // so CSS can float them. It also attaches the View Transition to the theme button.
+            
+            const initUI = () => {
+                const doc = window.parent.document;
+                const buttons = Array.from(doc.querySelectorAll('button p'));
+                
+                // --- Theme Button ---
+                const themeP = buttons.find(b => b.textContent === '☀️' || b.textContent === '🌙');
+                if (themeP) {
+                    const themeBtn = themeP.closest('button');
+                    const wrapper = themeBtn.closest('div[data-testid="stButton"]');
+                    if (wrapper && !wrapper.classList.contains('floating-theme-btn')) {
+                        wrapper.classList.add('floating-theme-btn');
+                        
+                        // Attach capture-phase listener for View Transition
+                        themeBtn.addEventListener('click', (e) => {
+                            // Update localStorage instantly to avoid flicker on next load
+                            const isDarkNow = themeP.textContent === '☀️';
+                            localStorage.setItem('ai_fitness_theme', isDarkNow ? 'Light' : 'Dark');
+                            
+                            if (doc.startViewTransition) {
+                                doc.documentElement.style.setProperty('--theme-x', e.clientX + 'px');
+                                doc.documentElement.style.setProperty('--theme-y', e.clientY + 'px');
+                                
+                                doc.startViewTransition(() => {
+                                    return new Promise(resolve => {
+                                        const observer = new MutationObserver(() => {
+                                            setTimeout(() => { resolve(); observer.disconnect(); }, 50);
+                                        });
+                                        observer.observe(doc.body, { childList: true, subtree: true });
+                                    });
+                                });
+                            }
+                        }, true); // true = capture phase!
+                    }
+                }
+                
+                // --- Home Button ---
+                const homeP = buttons.find(b => b.textContent.includes('🏠 Home'));
+                if (homeP) {
+                    const wrapper = homeP.closest('div[data-testid="stButton"]');
+                    if (wrapper && !wrapper.classList.contains('floating-home-btn')) {
+                        wrapper.classList.add('floating-home-btn');
+                    }
+                }
+                
+                // --- LocalStorage Sync ---
+                const savedTheme = localStorage.getItem('ai_fitness_theme');
+                if (savedTheme && themeP) {
+                    const pythonThemeIsDark = themeP.textContent === '☀️';
+                    const pythonThemeStr = pythonThemeIsDark ? 'Dark' : 'Light';
+                    if (savedTheme !== pythonThemeStr) {
+                        // Silent sync if out of sync on load
+                        themeBtn.click();
+                    }
+                }
+            };
 
-        nav_labels = list(NAV_ITEMS.keys())
-        nav_values = list(NAV_ITEMS.values())
-
-        # Find current index
-        current = st.session_state.get("current_page", "Home")
-        try:
-            current_idx = nav_values.index(current)
-        except ValueError:
-            current_idx = 0
-
-        selected_label = st.radio(
-            "nav",
-            options=nav_labels,
-            index=current_idx,
-            label_visibility="collapsed",
-            key="sidebar_nav",
-        )
-        st.session_state.current_page = NAV_ITEMS[selected_label]
-
-        # Profile status
-        st.markdown(
-            "<hr style='border:none;border-top:1px solid var(--divider-line);margin:1rem 0 0.8rem;'/>",
-            unsafe_allow_html=True,
-        )
-
-        profile_done = is_profile_complete()
-        profile_name = st.session_state.profile.get("name", "")
-        if profile_done and profile_name:
-            st.markdown(
-                f"""
-                <div style="
-                    background:var(--profile-active-bg);
-                    border:1px solid var(--profile-active-border);
-                    border-radius:12px;
-                    padding:0.75rem 1rem;
-                    font-size:0.82rem;
-                ">
-                    <div style="color:var(--profile-active-title);font-weight:600;margin-bottom:0.2rem;">✅ Profile Active</div>
-                    <div style="color:var(--text-secondary);">{profile_name}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown(
-                """
-                <div style="
-                    background:var(--profile-inactive-bg);
-                    border:1px solid var(--profile-inactive-border);
-                    border-radius:12px;
-                    padding:0.75rem 1rem;
-                    font-size:0.82rem;
-                ">
-                    <div style="color:var(--profile-inactive-title);font-weight:600;margin-bottom:0.2rem;">⚠️ No Profile</div>
-                    <div style="color:var(--text-secondary);">Set up your profile to unlock all features.</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-        # ── Theme toggle ───────────────────────────────────────────────────────
-        st.markdown(
-            "<hr style='border:none;border-top:1px solid var(--divider-line);margin:1rem 0 0.8rem;'/>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<p style='font-size:0.7rem;font-weight:700;text-transform:uppercase;"
-            "letter-spacing:0.1em;color:var(--text-muted);padding:0 0.3rem;margin-bottom:0.5rem;'>"
-            "Appearance</p>",
-            unsafe_allow_html=True,
-        )
-
-        current_theme = get_theme()
-        is_dark = st.toggle(
-            "🌙 Dark Mode",
-            value=(current_theme == "Dark"),
-            key="theme_toggle",
-            help="Switch between Light and Dark themes",
-        )
-        new_theme = "Dark" if is_dark else "Light"
-        if new_theme != current_theme:
-            set_theme(new_theme)
-            st.rerun()
-
-        # Version footer
-        st.markdown(
-            "<div style='text-align:center;font-size:0.7rem;color:var(--footer-color);margin-top:1.5rem;'>"
-            "v3.0 · Phase 3</div>",
-            unsafe_allow_html=True,
-        )
+            // Run once immediately, and also on load to catch DOM
+            initUI();
+            setTimeout(initUI, 100);
+        </script>
+    """)
 
 
 # ---------------------------------------------------------------------------
@@ -196,8 +149,8 @@ def main() -> None:
     # 2. Inject global styles with the active theme
     apply_global_styles(get_theme())
 
-    # 3. Render sidebar (may update theme and trigger rerun)
-    render_sidebar()
+    # 3. Inject Floating UI
+    inject_global_ui()
 
     # 4. Route to correct page
     page = st.session_state.current_page

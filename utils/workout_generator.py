@@ -18,7 +18,7 @@ from typing import Any
 import google.generativeai as genai
 
 # Reuse shared helpers from diet_generator (no code duplication)
-from utils.diet_generator import _get_gemini_client, _extract_json
+from utils.diet_generator import _get_gemini_client, _extract_json, _clean_malformed_json
 
 # ---------------------------------------------------------------------------
 # Logging setup
@@ -142,8 +142,14 @@ def build_workout_prompt(
 
 
 # ---------------------------------------------------------------------------
-# Plan generator
+# Validation & Plan generator
 # ---------------------------------------------------------------------------
+
+def _validate_workout_plan(plan: dict) -> None:
+    required_keys = ["plan_summary", "weekly_schedule"]
+    for key in required_keys:
+        if key not in plan:
+            raise ValueError(f"Missing required key: {key}")
 
 def generate_workout_plan(prompt: str) -> dict[str, Any]:
     """
@@ -169,15 +175,17 @@ def generate_workout_plan(prompt: str) -> dict[str, Any]:
     )
 
     try:
+        logger.info("Workout plan request sent to Gemini.")
         response = model.generate_content(
             prompt,
             generation_config=generation_config,
         )
+        logger.info("Workout plan response received.")
     except Exception as exc:
-        raise RuntimeError(f"Gemini API error: {exc}") from exc
+        logger.error("API failure during workout plan generation: %s", exc)
+        raise RuntimeError("Network or API failure. Please try again.") from exc
 
     raw_text = response.text.strip()
-    logger.info("Gemini workout response length: %d characters", len(raw_text))
 
     # Strip any accidental markdown fences that the model may add
     raw_text = re.sub(r"^```(?:json)?", "", raw_text, flags=re.MULTILINE).strip()
@@ -188,12 +196,19 @@ def generate_workout_plan(prompt: str) -> dict[str, Any]:
 
     try:
         plan = json.loads(json_text)
+        _validate_workout_plan(plan)
         return plan
-    except json.JSONDecodeError as first_err:
-        logger.warning(
-            "First workout JSON parse failed (%s). Retrying with stricter prompt…",
-            first_err,
-        )
+    except (json.JSONDecodeError, ValueError) as first_err:
+        logger.warning("First workout JSON parse/validation failed (%s). Attempting automatic cleanup...", first_err)
+        cleaned_text = _clean_malformed_json(json_text)
+        try:
+            plan = json.loads(cleaned_text)
+            _validate_workout_plan(plan)
+            logger.info("Automatic workout cleanup successful.")
+            return plan
+        except (json.JSONDecodeError, ValueError) as cleanup_err:
+            logger.error("Workout JSON parsing/validation failure after cleanup: %s", cleanup_err)
+            logger.info("Retry triggered for workout plan.")
 
     # ── Retry: one additional call with an explicit instruction ────────────
     retry_prompt = (
@@ -203,15 +218,17 @@ def generate_workout_plan(prompt: str) -> dict[str, Any]:
     )
 
     try:
+        logger.info("Retry workout plan request sent.")
         response = model.generate_content(
             retry_prompt,
             generation_config=generation_config,
         )
+        logger.info("Retry workout plan response received.")
     except Exception as exc:
-        raise RuntimeError(f"Gemini API error on retry: {exc}") from exc
+        logger.error("API failure on retry: %s", exc)
+        raise RuntimeError("Failed to connect to the AI model on retry. Please try again.") from exc
 
     raw_text = response.text.strip()
-    logger.info("Gemini workout RETRY response length: %d characters", len(raw_text))
 
     raw_text = re.sub(r"^```(?:json)?", "", raw_text, flags=re.MULTILINE).strip()
     raw_text = re.sub(r"```$", "", raw_text, flags=re.MULTILINE).strip()
@@ -220,12 +237,12 @@ def generate_workout_plan(prompt: str) -> dict[str, Any]:
 
     try:
         plan = json.loads(json_text)
+        _validate_workout_plan(plan)
         return plan
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.error("Final workout JSON parsing/validation failure: %s", exc)
         raise RuntimeError(
-            f"Could not parse Gemini workout response as JSON after retry.\n"
-            f"Parse error: {exc}\n"
-            f"Raw response (first 500 chars): {json_text[:500]}"
+            "The AI generated an invalid workout plan format. Please try generating again."
         ) from exc
 
 

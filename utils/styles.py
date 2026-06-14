@@ -380,20 +380,26 @@ html, body,
     padding: 1.6rem;
     text-align: center;
     height: 100%;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease, transform 0.1s ease;
     box-shadow: 0 2px 8px var(--shadow);
+    cursor: pointer;
 }
 
 .feature-card:hover {
     background: var(--glass-bg);
     border-color: var(--border);
-    transform: translateY(-5px);
+    transform: translateY(-5px) scale(1.02);
     box-shadow: 0 16px 35px var(--shadow);
 }
 
-.feature-icon  { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; }
-.feature-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-.feature-desc  { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+.feature-card:active {
+    transform: translateY(0px) scale(0.98);
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+.feature-icon  { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; pointer-events: none; }
+.feature-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; pointer-events: none; }
+.feature-desc  { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; pointer-events: none; }
 
 /* ── Section header ──────────────────────────────────────── */
 .section-header {
@@ -584,6 +590,121 @@ html, body,
     border-radius: 12px !important;
 }
 
+/* ── View Transitions (Theme Radial Reveal) ───────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+  clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+  animation: theme-reveal 0.8s ease-out forwards;
+}
+
+@keyframes theme-reveal {
+  to {
+    clip-path: circle(150% at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+/* ── Navigation Hub ──────────────────────────────────────── */
+.nav-hub {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+/* For Streamlit buttons inside the nav hub */
+.nav-hub-btn-container {
+    flex: 1 1 0;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+/* Removed overlay hacks */
+
+/* ── Floating Real Streamlit Buttons ────────────────────── */
+.floating-theme-btn {
+    position: fixed !important;
+    top: 15px !important;
+    right: 20px !important;
+    z-index: 999999 !important;
+}
+
+.floating-theme-btn button {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 50% !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 1.2rem !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px var(--shadow) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-primary) !important;
+    padding: 0 !important;
+}
+
+.floating-theme-btn button:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 20px var(--shadow-hover) !important;
+}
+
+.floating-theme-btn button p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.floating-home-btn {
+    position: fixed !important;
+    top: 15px !important;
+    left: 20px !important;
+    z-index: 999999 !important;
+}
+
+.floating-home-btn button {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 50px !important;
+    padding: 0.5rem 1.2rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px var(--shadow) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    height: auto !important;
+}
+
+.floating-home-btn button:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 20px var(--shadow-hover) !important;
+}
+
+.floating-home-btn button p {
+    margin: 0 !important;
+    font-family: 'Outfit', sans-serif !important;
+}
+
 /* ── Responsive: tablet (≤ 1024px) ───────────────────────── */
 @media (max-width: 1024px) {
     /* Reduce padding on main content */
@@ -610,6 +731,15 @@ html, body,
     .meal-card, .day-card, .summary-card, .wo-summary-card {
         margin-left: 0 !important;
         margin-right: 0 !important;
+    }
+
+    /* Stack Nav Hub on mobile */
+    .nav-hub {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .nav-hub-btn-container {
+        max-width: 100%;
     }
 
     /* Reduce hero heading */
@@ -668,10 +798,11 @@ def metric_card_html(icon: str, label: str, value: str, unit: str = "") -> str:
     """
 
 
-def feature_card_html(icon: str, title: str, description: str) -> str:
-    """Return HTML for a feature highlight card."""
+def feature_card_html(icon: str, title: str, description: str, page: str = None) -> str:
+    """Return HTML for a feature highlight card. If page is provided, makes it clickable via clickNavHub."""
+    onclick_attr = f""" onclick="if(window.parent.clickNavHub) window.parent.clickNavHub('{page}')" """ if page else ""
     return f"""
-    <div class="feature-card">
+    <div class="feature-card"{onclick_attr}>
         <span class="feature-icon">{icon}</span>
         <div class="feature-title">{title}</div>
         <div class="feature-desc">{description}</div>

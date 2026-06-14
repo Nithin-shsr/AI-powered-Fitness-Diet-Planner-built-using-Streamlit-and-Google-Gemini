@@ -23,6 +23,9 @@ import google.generativeai as genai
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+# TODO: Migrate google.generativeai to google.genai package in the future
+# once it can be done safely without breaking existing functionality.
+
 
 # ---------------------------------------------------------------------------
 # Gemini client initialisation
@@ -204,6 +207,17 @@ def _extract_json(raw_text: str) -> str:
         return raw_text[first : last + 1]
     return raw_text.strip()
 
+def _clean_malformed_json(json_str: str) -> str:
+    """
+    Attempt to clean up common JSON formatting errors introduced by LLMs.
+    """
+    # Remove trailing commas before closing braces/brackets
+    json_str = re.sub(r',\s*([}\]])', r'\1', json_str)
+    # Strip any remaining markdown or HTML wrapper that might have bypassed previous steps
+    json_str = json_str.replace("```json", "").replace("```", "")
+    json_str = re.sub(r'<[^>]+>', '', json_str)
+    return json_str.strip()
+
 
 # ---------------------------------------------------------------------------
 # Plan generator
@@ -233,16 +247,18 @@ def generate_diet_plan(prompt: str) -> dict[str, Any]:
     )
 
     try:
+        logger.info("Diet plan request sent to Gemini.")
         response = model.generate_content(
             prompt,
             generation_config=generation_config,
         )
+        logger.info("Diet plan response received.")
     except Exception as exc:
-        raise RuntimeError(f"Gemini API error: {exc}") from exc
+        logger.error("API failure during diet plan generation: %s", exc)
+        raise RuntimeError("Network or API failure. Please try again.") from exc
 
     raw_text = response.text.strip()
-    logger.info("Gemini response length: %d characters", len(raw_text))
-
+    
     # Strip any accidental markdown fences that the model may add
     raw_text = re.sub(r"^```(?:json)?", "", raw_text, flags=re.MULTILINE).strip()
     raw_text = re.sub(r"```$", "", raw_text, flags=re.MULTILINE).strip()
@@ -254,10 +270,15 @@ def generate_diet_plan(prompt: str) -> dict[str, Any]:
         plan = json.loads(json_text)
         return plan
     except json.JSONDecodeError as first_err:
-        logger.warning(
-            "First JSON parse failed (%s). Retrying with stricter prompt…",
-            first_err,
-        )
+        logger.warning("First JSON parse failed (%s). Attempting automatic cleanup...", first_err)
+        cleaned_text = _clean_malformed_json(json_text)
+        try:
+            plan = json.loads(cleaned_text)
+            logger.info("Automatic cleanup successful.")
+            return plan
+        except json.JSONDecodeError as cleanup_err:
+            logger.error("JSON parsing failure after cleanup: %s", cleanup_err)
+            logger.info("Retry triggered for diet plan.")
 
     # ── Retry: one additional call with an explicit instruction ────────────
     retry_prompt = (
@@ -267,15 +288,17 @@ def generate_diet_plan(prompt: str) -> dict[str, Any]:
     )
 
     try:
+        logger.info("Retry diet plan request sent.")
         response = model.generate_content(
             retry_prompt,
             generation_config=generation_config,
         )
+        logger.info("Retry diet plan response received.")
     except Exception as exc:
-        raise RuntimeError(f"Gemini API error on retry: {exc}") from exc
+        logger.error("API failure on retry: %s", exc)
+        raise RuntimeError("Failed to connect to the AI model on retry. Please try again.") from exc
 
     raw_text = response.text.strip()
-    logger.info("Gemini RETRY response length: %d characters", len(raw_text))
 
     raw_text = re.sub(r"^```(?:json)?", "", raw_text, flags=re.MULTILINE).strip()
     raw_text = re.sub(r"```$", "", raw_text, flags=re.MULTILINE).strip()
@@ -286,10 +309,9 @@ def generate_diet_plan(prompt: str) -> dict[str, Any]:
         plan = json.loads(json_text)
         return plan
     except json.JSONDecodeError as exc:
+        logger.error("Final JSON parsing failure: %s", exc)
         raise RuntimeError(
-            f"Could not parse Gemini response as JSON after retry.\n"
-            f"Parse error: {exc}\n"
-            f"Raw response (first 500 chars): {json_text[:500]}"
+            "The AI generated an invalid diet plan format. Please try generating again."
         ) from exc
 
 
