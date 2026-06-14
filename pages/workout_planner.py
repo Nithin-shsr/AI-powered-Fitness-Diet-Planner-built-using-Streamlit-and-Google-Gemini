@@ -180,8 +180,8 @@ WORKOUT_PAGE_CSS = """
 
 /* ── Tip card ───────────────────────────────────────────────── */
 .wo-tip-card {
-    background: linear-gradient(135deg, rgba(108,99,255,0.07), rgba(0,212,255,0.04));
-    border: 1px solid rgba(108,99,255,0.2);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 14px;
     padding: 0.9rem 1.1rem;
     margin-bottom: 0.7rem;
@@ -206,8 +206,8 @@ WORKOUT_PAGE_CSS = """
 
 /* ── Plan summary banner ────────────────────────────────────── */
 .wo-plan-summary-banner {
-    background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(0,212,255,0.06));
-    border: 1px solid rgba(108,99,255,0.25);
+    background: var(--metric-bg);
+    border: 1px solid var(--metric-border);
     border-radius: 18px;
     padding: 1.3rem 1.7rem;
     margin-bottom: 1.6rem;
@@ -219,8 +219,8 @@ WORKOUT_PAGE_CSS = """
 
 /* ── Progression advice banner ──────────────────────────────── */
 .wo-progression-banner {
-    background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(0,212,255,0.04));
-    border: 1px solid rgba(52,211,153,0.25);
+    background: var(--badge-success-bg);
+    border: 1px solid var(--badge-success-border);
     border-radius: 18px;
     padding: 1.3rem 1.7rem;
     margin-bottom: 1rem;
@@ -659,7 +659,7 @@ def render() -> None:
                 font-family:'Outfit',sans-serif;
                 font-size:2rem;
                 font-weight:800;
-                background:linear-gradient(135deg,#6c63ff,#00d4ff);
+                background:var(--gradient);
                 -webkit-background-clip:text;
                 -webkit-text-fill-color:transparent;
                 background-clip:text;
@@ -700,8 +700,8 @@ def render() -> None:
     st.html(
         f"""
         <div style="
-            background: linear-gradient(135deg,rgba(108,99,255,0.08),rgba(0,212,255,0.04));
-            border: 1px solid rgba(108,99,255,0.2);
+            background: var(--welcome-bg);
+            border: 1px solid var(--welcome-border);
             border-radius: 14px;
             padding: 0.9rem 1.3rem;
             margin-bottom: 1.4rem;

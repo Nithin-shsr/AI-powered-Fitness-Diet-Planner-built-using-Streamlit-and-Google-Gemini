@@ -116,13 +116,13 @@ def render() -> None:
                 font-family:'Outfit',sans-serif;
                 font-size:2rem;
                 font-weight:800;
-                background:linear-gradient(135deg,#6c63ff,#00d4ff);
+                background:var(--gradient);
                 -webkit-background-clip:text;
                 -webkit-text-fill-color:transparent;
                 background-clip:text;
                 margin-bottom:0.3rem;
             ">👤 Your Profile</h1>
-            <p style="color:#94a3b8;font-size:0.95rem;">
+            <p style="color:var(--text-secondary);font-size:0.95rem;">
                 Fill in your details so we can personalise your fitness journey.
             </p>
         </div>
@@ -308,7 +308,7 @@ def render() -> None:
             _save_to_csv(new_profile)
             st.success("✅ Profile saved successfully!")
             st.markdown(
-                "<p style='color:#94a3b8;font-size:0.9rem;margin-top:0.5rem;'>"
+                "<p style='color:var(--text-secondary);font-size:0.9rem;margin-top:0.5rem;'>"
                 "Head over to the <strong>Dashboard</strong> to view your personalised health metrics.</p>",
                 unsafe_allow_html=True,
             )

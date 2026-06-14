@@ -35,10 +35,10 @@ def _progress_ring(value: float, max_val: float, colour: str, label: str) -> str
     return f"""
     <div style="margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;">
-            <span style="font-size:0.82rem;color:#94a3b8;">{label}</span>
+            <span style="font-size:0.82rem;color:var(--text-secondary);">{label}</span>
             <span style="font-size:0.82rem;font-weight:600;color:{colour};">{pct}%</span>
         </div>
-        <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:50px;overflow:hidden;">
+        <div style="height:8px;background:var(--progress-track);border-radius:50px;overflow:hidden;">
             <div style="
                 width:{pct}%;
                 height:100%;
@@ -74,7 +74,7 @@ def _bmi_gauge(bmi: float) -> str:
                 height:20px;
                 background:{colour};
                 border-radius:50%;
-                border:3px solid #0a0a0f;
+                border:3px solid var(--bg-primary);
                 box-shadow:0 0 10px {colour}88;
                 transition:left 0.6s ease;
             "></div>
@@ -105,13 +105,13 @@ def render() -> None:
                 font-family:'Outfit',sans-serif;
                 font-size:2rem;
                 font-weight:800;
-                background:linear-gradient(135deg,#6c63ff,#00d4ff);
+                background:var(--gradient);
                 -webkit-background-clip:text;
                 -webkit-text-fill-color:transparent;
                 background-clip:text;
                 margin-bottom:0.3rem;
             ">📊 Health Dashboard</h1>
-            <p style="color:#94a3b8;font-size:0.95rem;">
+            <p style="color:var(--text-secondary);font-size:0.95rem;">
                 Your personalised health metrics — calculated from your profile.
             </p>
         </div>
@@ -126,14 +126,14 @@ def render() -> None:
             <div style="
                 text-align:center;
                 padding:3rem 1rem;
-                background:rgba(255,255,255,0.03);
-                border:1px dashed rgba(108,99,255,0.3);
+                background:var(--guard-bg);
+                border:1px dashed var(--guard-border);
                 border-radius:20px;
                 margin-top:1rem;
             ">
                 <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
-                <h3 style="color:#e2e8f0;margin-bottom:0.5rem;">Profile Required</h3>
-                <p style="color:#94a3b8;max-width:400px;margin:0 auto 1.5rem;">
+                <h3 style="color:var(--text-primary);margin-bottom:0.5rem;">Profile Required</h3>
+                <p style="color:var(--text-secondary);max-width:400px;margin:0 auto 1.5rem;">
                     Please complete your profile first so we can calculate your personalised metrics.
                 </p>
             </div>
@@ -169,8 +169,8 @@ def render() -> None:
     st.html(
         f"""
         <div style="
-            background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(0,212,255,0.06));
-            border:1px solid rgba(108,99,255,0.25);
+            background:var(--welcome-bg);
+            border:1px solid var(--welcome-border);
             border-radius:18px;
             padding:1.4rem 1.8rem;
             margin-bottom:1.5rem;
@@ -180,13 +180,13 @@ def render() -> None:
         ">
             <div style="font-size:2.5rem;">👋</div>
             <div>
-                <div style="font-size:1.2rem;font-weight:700;color:#e2e8f0;">
+                <div style="font-size:1.2rem;font-weight:700;color:var(--text-primary);">
                     Hello, {profile['name']}!
                 </div>
-                <div style="color:#94a3b8;font-size:0.9rem;margin-top:0.2rem;">
-                    Goal: <strong style="color:#6c63ff;">{goal}</strong> ·
-                    Activity: <strong style="color:#00d4ff;">{activity}</strong> ·
-                    Diet: <strong style="color:#ff6584;">{profile['diet_preference']}</strong>
+                <div style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.2rem;">
+                    Goal: <strong style="color:var(--accent-1);">{goal}</strong> ·
+                    Activity: <strong style="color:var(--accent-2);">{activity}</strong> ·
+                    Diet: <strong style="color:var(--accent-3);">{profile['diet_preference']}</strong>
                 </div>
             </div>
         </div>
@@ -243,8 +243,8 @@ def render() -> None:
         st.html(
             f"""
             <div style="
-                background:rgba(255,255,255,0.03);
-                border:1px solid rgba(108,99,255,0.2);
+                background:var(--detail-bg);
+                border:1px solid var(--detail-border);
                 border-radius:16px;
                 padding:1.5rem;
             ">
@@ -254,11 +254,11 @@ def render() -> None:
                     {badge_html(bmi_cat, badge_variant)}
                 </div>
                 {_bmi_gauge(bmi)}
-                <div style="margin-top:1rem;font-size:0.88rem;color:#94a3b8;line-height:1.7;">
-                    <strong style="color:#e2e8f0;">Height:</strong> {height} cm &nbsp;|&nbsp;
-                    <strong style="color:#e2e8f0;">Weight:</strong> {weight} kg<br/>
-                    <strong style="color:#e2e8f0;">Target:</strong> {target} kg
-                    {"&nbsp;|&nbsp;<strong style='color:#e2e8f0;'>ETA:</strong> ~" + str(weeks) + " weeks" if weeks else ""}
+                <div style="margin-top:1rem;font-size:0.88rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong style="color:var(--text-primary);">Height:</strong> {height} cm &nbsp;|&nbsp;
+                    <strong style="color:var(--text-primary);">Weight:</strong> {weight} kg<br/>
+                    <strong style="color:var(--text-primary);">Target:</strong> {target} kg
+                    {"&nbsp;|&nbsp;<strong style='color:var(--text-primary);'>ETA:</strong> ~" + str(weeks) + " weeks" if weeks else ""}
                 </div>
             </div>
             """,
@@ -287,13 +287,13 @@ def render() -> None:
         st.html(
             f"""
             <div style="
-                background:rgba(255,255,255,0.03);
-                border:1px solid rgba(108,99,255,0.2);
+                background:var(--detail-bg);
+                border:1px solid var(--detail-border);
                 border-radius:16px;
                 padding:1.5rem;
             ">
-                <div style="font-size:0.9rem;color:#94a3b8;margin-bottom:1rem;">
-                    Daily target: <strong style="color:#e2e8f0;font-size:1.1rem;">{daily_cals:,} kcal</strong>
+                <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:1rem;">
+                    Daily target: <strong style="color:var(--text-primary);font-size:1.1rem;">{daily_cals:,} kcal</strong>
                     &nbsp;({goal})
                 </div>
 
@@ -304,7 +304,7 @@ def render() -> None:
                 {_progress_ring(fat_cals, total_macros, "#ff6584",
                   f"🥑 Fats  ~{fat_g} g  ({fat_cals} kcal)")}
 
-                <div style="font-size:0.75rem;color:#4a5568;margin-top:0.5rem;">
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">
                     * Macro split is approximate and goal-adjusted.
                     Adjust under guidance of a nutritionist.
                 </div>
@@ -324,19 +324,19 @@ def render() -> None:
         st.html(
             f"""
             <div style="
-                background:rgba(0,212,255,0.06);
-                border:1px solid rgba(0,212,255,0.25);
+                background:var(--hydration-bg);
+                border:1px solid var(--hydration-border);
                 border-radius:16px;
                 padding:1.4rem;
                 text-align:center;
             ">
                 <div style="font-size:3rem;">💧</div>
                 <div style="font-size:2.5rem;font-weight:800;font-family:'Outfit',sans-serif;
-                             color:#00d4ff;margin:0.3rem 0;">{water_litres} L</div>
-                <div style="color:#94a3b8;font-size:0.88rem;">
-                    ≈ <strong style="color:#e2e8f0;">{glasses} glasses</strong> of water per day
+                             color:var(--hydration-value);margin:0.3rem 0;">{water_litres} L</div>
+                <div style="color:var(--text-secondary);font-size:0.88rem;">
+                    ≈ <strong style="color:var(--text-primary);">{glasses} glasses</strong> of water per day
                 </div>
-                <div style="margin-top:1rem;font-size:0.8rem;color:#4a5568;">
+                <div style="margin-top:1rem;font-size:0.8rem;color:var(--text-muted);">
                     Based on 35 ml / kg body-weight (EFSA guideline)
                 </div>
             </div>
@@ -348,17 +348,17 @@ def render() -> None:
         st.html(
             f"""
             <div style="
-                background:rgba(108,99,255,0.06);
-                border:1px solid rgba(108,99,255,0.25);
+                background:var(--bmr-bg);
+                border:1px solid var(--bmr-border);
                 border-radius:16px;
                 padding:1.4rem;
                 text-align:center;
             ">
                 <div style="font-size:3rem;">🔥</div>
                 <div style="font-size:2.5rem;font-weight:800;font-family:'Outfit',sans-serif;
-                             color:#6c63ff;margin:0.3rem 0;">{int(bmr):,}</div>
-                <div style="color:#94a3b8;font-size:0.88rem;">kcal burned at complete rest per day</div>
-                <div style="margin-top:1rem;font-size:0.8rem;color:#4a5568;">
+                             color:var(--bmr-value);margin:0.3rem 0;">{int(bmr):,}</div>
+                <div style="color:var(--text-secondary);font-size:0.88rem;">kcal burned at complete rest per day</div>
+                <div style="margin-top:1rem;font-size:0.8rem;color:var(--text-muted);">
                     Mifflin-St Jeor formula · TDEE = {daily_cals:,} kcal
                     (× {1.2 if activity == "Sedentary" else 1.375 if activity == "Lightly Active" else 1.55 if activity == "Moderately Active" else 1.725 if activity == "Very Active" else 1.9} activity multiplier)
                 </div>

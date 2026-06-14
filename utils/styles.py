@@ -114,6 +114,13 @@ DARK_VARS = """:root {
   --scrollbar-bg:    #12121a;
   --scrollbar-thumb: #6c63ff;
   --scrollbar-hover: #00d4ff;
+
+  /* Sidebar nav active/hover states */
+  --nav-hover-bg:       rgba(108, 99, 255, 0.12);
+  --nav-hover-border:   rgba(108, 99, 255, 0.4);
+  --nav-active-bg:      rgba(108, 99, 255, 0.22);
+  --nav-active-border:  rgba(108, 99, 255, 0.65);
+  --nav-active-color:   #c4c0ff;
 }"""
 
 
@@ -219,6 +226,13 @@ LIGHT_VARS = """:root {
   --scrollbar-bg:    #f1f5f9;
   --scrollbar-thumb: #3b82f6;
   --scrollbar-hover: #06b6d4;
+
+  /* Sidebar nav active/hover states */
+  --nav-hover-bg:       rgba(59, 130, 246, 0.1);
+  --nav-hover-border:   rgba(59, 130, 246, 0.4);
+  --nav-active-bg:      rgba(59, 130, 246, 0.16);
+  --nav-active-border:  rgba(59, 130, 246, 0.6);
+  --nav-active-color:   #1d4ed8;
 }"""
 
 
@@ -272,6 +286,11 @@ html, body,
     flex-direction: column;
 }
 
+/* Hide the actual radio dot */
+[data-testid="stSidebar"] .stRadio input[type="radio"] {
+    display: none !important;
+}
+
 [data-testid="stSidebar"] .stRadio label {
     display: flex !important;
     align-items: center !important;
@@ -283,12 +302,21 @@ html, body,
     color: var(--text-secondary) !important;
     font-weight: 500 !important;
     font-size: 0.95rem !important;
+    margin-bottom: 0 !important;
 }
 
 [data-testid="stSidebar"] .stRadio label:hover {
     background: var(--nav-hover-bg) !important;
     border-color: var(--nav-hover-border) !important;
     color: var(--text-primary) !important;
+}
+
+/* Active / selected nav item */
+[data-testid="stSidebar"] .stRadio label:has(input[type="radio"]:checked) {
+    background: var(--nav-active-bg) !important;
+    border-color: var(--nav-active-border) !important;
+    color: var(--nav-active-color) !important;
+    font-weight: 700 !important;
 }
 
 /* ── Glass card ──────────────────────────────────────────── */
@@ -486,6 +514,116 @@ html, body,
 [data-testid="stMarkdownContainer"] td,
 [data-testid="stMarkdownContainer"] th {
     color: var(--text-primary) !important;
+}
+
+/* ── Selectbox / dropdown text (fixes white-on-white in light mode) ── */
+[data-baseweb="select"] span,
+[data-baseweb="select"] div[class*="placeholder"],
+[data-baseweb="menu"] li,
+[data-baseweb="menu"] [role="option"],
+.stSelectbox label,
+.stMultiSelect label,
+.stNumberInput label,
+.stTextInput label,
+.stSlider label {
+    color: var(--text-primary) !important;
+}
+
+/* Selectbox dropdown background */
+[data-baseweb="popover"],
+[data-baseweb="menu"] {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+/* ── Form labels & widget text ───────────────────────────── */
+.stRadio label p,
+.stCheckbox label p,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] label {
+    color: var(--text-primary) !important;
+}
+
+/* ── Expander header text ───────────────────────────────── */
+[data-testid="stExpander"] summary p {
+    color: var(--text-primary) !important;
+}
+
+/* ── st.success / st.error / st.info / st.warning ────────── */
+[data-testid="stNotification"] p,
+[data-testid="stNotification"] span {
+    color: inherit !important;
+}
+
+/* ── Prevent horizontal overflow ─────────────────────────── */
+[data-testid="stAppViewContainer"] {
+    overflow-x: hidden !important;
+}
+
+/* ── Caption text ─────────────────────────────────────────── */
+[data-testid="stCaptionContainer"] p {
+    color: var(--text-muted) !important;
+}
+
+/* ── Chat messages ────────────────────────────────────────── */
+[data-testid="stChatMessage"] {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 14px !important;
+    margin-bottom: 0.75rem !important;
+}
+[data-testid="stChatMessage"] p {
+    color: var(--text-primary) !important;
+}
+
+/* ── Chat input ───────────────────────────────────────────── */
+[data-testid="stChatInput"] textarea {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px !important;
+}
+
+/* ── Responsive: tablet (≤ 1024px) ───────────────────────── */
+@media (max-width: 1024px) {
+    /* Reduce padding on main content */
+    [data-testid="stMain"] .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* ── Responsive: mobile (≤ 768px) ────────────────────────── */
+@media (max-width: 768px) {
+    /* Prevent horizontal scroll on all levels */
+    html, body { overflow-x: hidden !important; }
+
+    /* Reduce main padding */
+    [data-testid="stMain"] .block-container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 1rem !important;
+    }
+
+    /* Glass / metric / feature cards — full width on mobile */
+    .glass-card, .metric-card, .feature-card,
+    .meal-card, .day-card, .summary-card, .wo-summary-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Reduce hero heading */
+    h1 { font-size: clamp(1.6rem, 5vw, 2.5rem) !important; }
+
+    /* Make tables horizontally scrollable */
+    .wo-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Section headers font size */
+    .section-header { font-size: 1.2rem !important; }
 }
 """
 
